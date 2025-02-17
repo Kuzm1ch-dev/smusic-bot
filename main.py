@@ -20,6 +20,18 @@ class GuildQueue:
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='/', intents=intents)
 queues = {}  # key: guild_id, value: GuildQueue
+ydl_opts = {
+    'format': 'bestaudio/best',
+    'outtmpl': 'downloads/%(id)s.%(ext)s',
+    'noplaylist': False,  # Разрешаем плейлисты
+    'quiet': True,
+    'default_search': 'ytsearch',
+    'http_headers': {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+}
+
+
 
 @bot.event
 async def on_ready():
@@ -52,18 +64,16 @@ async def play_next(guild_id):
         print(f'Ошибка воспроизведения: {e}')
         await play_next(guild_id)
 
-@bot.tree.command(name='play', description='Добавить трек в очередь')
+@bot.tree.command(name='play', description='Добавить трек или плейлист')
 async def play(interaction: discord.Interaction, запрос: str):
     await interaction.response.defer()
     
-    # Проверка подключения к голосовому каналу
     if not interaction.user.voice:
-        return await interaction.followup.send('❌ Сначала подключитесь к голосовому каналу!')
+        return await interaction.followup.send('❌ Подключитесь к голосовому каналу!')
 
     guild_id = interaction.guild.id
     queue = get_queue(guild_id)
 
-    # Подключение/перемещение бота
     try:
         channel = interaction.user.voice.channel
         if not queue.voice_client:
@@ -73,21 +83,39 @@ async def play(interaction: discord.Interaction, запрос: str):
     except Exception as e:
         return await interaction.followup.send(f'❌ Ошибка подключения: {e}')
 
-    # Поиск трека
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(запрос, download=False)
+            
+            added_tracks = 0
             if 'entries' in info:
-                info = info['entries'][0]
-            song = Song(info['title'], info['url'])
+                # Обрабатываем плейлист или результаты поиска
+                for entry in info['entries']:
+                    if not entry:
+                        continue
+                    song = Song(
+                        title=entry.get('title', 'Без названия'),
+                        url=entry.get('url')
+                    )
+                    queue.queue.append(song)
+                    added_tracks += 1
+            else:
+                # Одиночный трек
+                song = Song(
+                    title=info.get('title', 'Без названия'),
+                    url=info.get('url')
+                )
+                queue.queue.append(song)
+                added_tracks += 1
+
+            message = f'🎶 Добавлено треков: **{added_tracks}**'
+            if added_tracks > 1:
+                message += '\n_Плейлист добавлен в очередь_'
+            await interaction.followup.send(message)
+
     except Exception as e:
-        return await interaction.followup.send(f'❌ Не удалось запустить этот трек')
+        return await interaction.followup.send(f'❌ Неудалось поставить этот трек =(')
 
-    # Добавление в очередь
-    queue.queue.append(song)
-    await interaction.followup.send(f'🎶 Добавлено в очередь: **{song.title}** (Позиция: {len(queue.queue)})')
-
-    # Запуск воспроизведения если ничего не играет
     if not queue.voice_client.is_playing():
         await play_next(guild_id)
 
