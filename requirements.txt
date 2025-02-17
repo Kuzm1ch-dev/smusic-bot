@@ -1,3 +1,6 @@
 discord.py>=2.3.2
 yt-dlp>=2023.7.6
 pynacl>=1.5.0
+flask>=3.1.0
+authlib>=1.4.1
+requests>=2.32.3

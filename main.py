@@ -4,6 +4,78 @@ from discord.ext import commands
 import yt_dlp as youtube_dl
 import os
 import asyncio
+from flask import Flask, redirect, request, session, render_template
+from authlib.integrations.flask_client import OAuth
+import secrets
+
+# Конфигурация Flask
+app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
+
+# Конфигурация OAuth Discord
+oauth = OAuth(app)
+discord_oauth = oauth.register(
+    name='discord',
+    client_id=os.getenv("AUTH_CLIENT_ID"),
+    client_secret=os.getenv("AUTH_CLIENT_SECRET"),
+    authorize_url='https://discord.com/api/oauth2/authorize',
+    authorize_params=None,
+    access_token_url='https://discord.com/api/oauth2/token',
+    access_token_params=None,
+    api_base_url='https://discord.com/api/',
+    client_kwargs={'scope': 'identify guilds'},
+)
+
+# Web Routes
+@app.route('/')
+def home():
+    if 'user' not in session:
+        return redirect('/login')
+    return render_template('queue.html')
+
+@app.route('/login')
+def login():
+    redirect_uri = request.base_url + '/callback'
+    return discord_oauth.authorize_redirect(redirect_uri)
+
+@app.route('/login/callback')
+def callback():
+    token = discord_oauth.authorize_access_token()
+    session['user'] = discord_oauth.get('api/users/@me').json()
+    return redirect('/')
+
+@app.route('/api/queue')
+def api_queue():
+    if 'user' not in session:
+        return {'error': 'Unauthorized'}, 401
+    
+    guild_id = get_user_guild()  # Нужно реализовать логику выбора сервера
+    queue = get_queue(guild_id)
+    
+    return {
+        'now_playing': queue.now_playing.title if queue.now_playing else None,
+        'queue': [song.title for song in queue.queue]
+    }
+
+@app.route('/add', methods=['POST'])
+def add_track():
+    if 'user' not in session:
+        return {'error': 'Unauthorized'}, 401
+    
+    track_url = request.form['url']
+    guild_id = get_user_guild()
+    
+    # Логика добавления трека в очередь
+    # ...
+    
+    return redirect('/')
+
+def run_web():
+    app.run(port=os.getenv("WEB_PORT"))
+
+async def run_bot():
+    await bot.start(os.getenv('BOT_TOKEN'))
+
 
 class Song:
     def __init__(self, title, url):
@@ -30,7 +102,6 @@ ydl_opts = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
 }
-
 
 
 @bot.event
@@ -164,6 +235,6 @@ async def leave(interaction: discord.Interaction):
         await interaction.response.send_message('❌ Бот не подключен к голосовому каналу')
 
 if __name__ == '__main__':
-    if not os.path.exists('downloads'):
-        os.makedirs('downloads')
-    bot.run(os.getenv('BOT_TOKEN'))
+    import threading
+    threading.Thread(target=run_web).start()
+    asyncio.run(run_bot())

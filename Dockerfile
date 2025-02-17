@@ -27,4 +27,5 @@ RUN mkdir -p downloads
 # ENV COOKIES_FILE=cookies.txt  # Если используете куки
 
 # Запуск бота
-CMD ["python", "main.py"]
+EXPOSE 5000
+CMD ["sh", "-c", "python main.py"]
