@@ -36,17 +36,11 @@ jobs:
           rsync -avz --delete \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/opt/smusic-bot
-      - name: Docker meta
+      - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: your-registry/image-name
-      - name: Debug meta
-        run: |
-          echo "Meta outputs:"
-          echo "${{ toJSON(steps.meta.outputs) }}"
-          echo "${{ secrets.HOST }}"
-          echo "${{ secrets.EMAIL }}"
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Deploy with docker-compose
         env:
             IMAGE_REF: ${{ steps.meta.outputs.tags }}
@@ -58,8 +52,8 @@ jobs:
             HOST: ${{ secrets.HOST }}
         run: |
             echo IMAGE_REF:$IMAGE_REF
-            echo EMAIL:$EMAIL
             echo HOST:$HOST
+            echo ${{ secrets.HOST }}
             ssh -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd /opt/smusic-bot && \
