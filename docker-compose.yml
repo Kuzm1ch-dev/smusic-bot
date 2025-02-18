@@ -37,5 +37,5 @@ services:
     networks:
       - traefik-net
 networks:
-  internal:
-  proxy:
+  traefik-net:
+    driver: bridge
