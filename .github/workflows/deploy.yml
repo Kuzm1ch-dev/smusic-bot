@@ -51,7 +51,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd /opt/smusic-bot && \
-            docker compose down && \
-            docker compose pull && \
-            docker compose up -d --build && \
+            docker-compose down && \
+            docker-compose pull && \
+            docker-compose up -d && \
             docker system prune -af"
