@@ -71,7 +71,7 @@ def add_track():
     return redirect('/')
 
 def run_web():
-    app.run(port=os.getenv("WEB_PORT"))
+    app.run(port=os.getenv("WEB_PORT"), host="0.0.0.0")
 
 async def run_bot():
     await bot.start(os.getenv('BOT_TOKEN'))
