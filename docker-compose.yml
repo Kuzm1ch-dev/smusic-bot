@@ -10,11 +10,11 @@ services:
       - HOST=${HOST}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.discord-bot-http.rule=Host(`${HOST}`)
       - traefik.http.routers.discord-bot-http.entrypoints=web
+      - traefik.http.routers.discord-bot-http.rule=Host(`${HOST}`)
       - traefik.http.routers.discord-bot-http.middlewares=redirect-to-https@file
-      - traefik.http.routers.discord-bot.rule=Host(`${HOST}`)
       - traefik.http.routers.discord-bot.entrypoints=websecure
+      - traefik.http.routers.discord-bot.rule=Host(`${HOST}`)
       - traefik.http.routers.discord-bot.tls=true
       - traefik.http.routers.discord-bot.tls.certresolver=letsencrypt
       - traefik.http.services.discord-bot.loadbalancer.server.port=${WEB_PORT}

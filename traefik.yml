@@ -16,10 +16,10 @@ providers:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: your@email.com  # Замените на ${EMAIL}
+      email: ${EMAIL}  # Замените на ${EMAIL}
       storage: /letsencrypt/acme.json
       httpChallenge:
-        entryPoint: web
+        entryPoint: discord-bot
 
 http:
   middlewares:
