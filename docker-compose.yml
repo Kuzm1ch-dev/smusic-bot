@@ -34,7 +34,8 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - traefik-net
-
+volumes:
+  letsencrypt:
 networks:
   traefik-net:
     driver: bridge
