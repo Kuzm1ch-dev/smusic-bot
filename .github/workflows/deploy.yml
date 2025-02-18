@@ -56,7 +56,7 @@ jobs:
         run: |
           cd /opt/smusic-bot/
           git pull
-          docker-compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot --agree-tos --email steam.danya@yandex.ru -d kuzm1ch.ru
+          docker-compose up -d
 
       - name: cleanup
         run: rm -rf ~/.ssh
