@@ -48,7 +48,10 @@ jobs:
             EMAIL: ${{ secrets.EMAIL }}
             HOST: ${{ secrets.HOST }}
         run: |
-          ssh -o StrictHostKeyChecking=no \
+            echo IMAGE_REF:$IMAGE_REF
+            echo EMAIL:$EMAIL
+            echo HOST:$HOST
+            ssh -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd /opt/smusic-bot && \
             docker-compose down && \
