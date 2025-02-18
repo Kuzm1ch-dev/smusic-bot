@@ -12,10 +12,13 @@ services:
       - HOST=${HOST}
       - EMAIL=${EMAIL}
     volumes:
-      - ./downloads:/app/downloads  # Для сохранения временных файлов
+      - ./downloads:/app/downloads
     labels:
       - traefik.enable=true
-      - traefik.http.routers.discord-bot.rule=Host(`${HOST}`) && PathPrefix(`/`)
+      - traefik.http.routers.discord-bot-http.rule=Host(`${HOST}`)
+      - traefik.http.routers.discord-bot-http.entrypoints=web
+      - traefik.http.routers.discord-bot-http.middlewares=redirect-to-https
+      - traefik.http.routers.discord-bot.rule=Host(`${HOST}`)
       - traefik.http.routers.discord-bot.entrypoints=websecure
       - traefik.http.routers.discord-bot.tls=true
       - traefik.http.routers.discord-bot.tls.certresolver=letsencrypt
@@ -23,6 +26,7 @@ services:
       - traefik.docker.network=traefik-net
     networks:
       - traefik-net
+
   traefik:
     image: traefik:v2.10
     restart: unless-stopped
@@ -34,6 +38,7 @@ services:
       - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --api.dashboard=true
     ports:
       - "80:80"
       - "443:443"
