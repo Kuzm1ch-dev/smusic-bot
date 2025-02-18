@@ -15,7 +15,6 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     environment: deploy
-
     steps:
       - name: Checkout 
         uses: actions/checkout@v4.1.1
@@ -37,7 +36,17 @@ jobs:
           rsync -avz --delete \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/opt/smusic-bot
-
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: your-registry/image-name
+      - name: Debug meta
+        run: |
+          echo "Meta outputs:"
+          echo "${{ toJSON(steps.meta.outputs) }}"
+          echo "${{ secrets.HOST }}"
+          echo "${{ secrets.EMAIL }}"
       - name: Deploy with docker-compose
         env:
             IMAGE_REF: ${{ steps.meta.outputs.tags }}
