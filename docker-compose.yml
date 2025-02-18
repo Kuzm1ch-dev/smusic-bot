@@ -24,7 +24,7 @@ services:
       - traefik-net
 
   traefik:
-    image: traefik:v2.10
+    image: traefik:v2.2
     restart: unless-stopped
     command:
       - --providers.docker=true
