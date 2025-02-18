@@ -10,34 +10,32 @@ services:
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
     volumes:
       - ./downloads:/app/downloads  # Для сохранения временных файлов
-    expose:
-      - ${WEB_PORT}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.discord-bot.rule=Host(`${HOST}`)
+      - traefik.http.routers.discord-bot.entrypoints=websecure
+      - traefik.http.routers.discord-bot.tls.certresolver=letsencrypt
+      - traefik.http.services.discord-bot.loadbalancer.server.port=5000
     networks:
-      - internal
-      - proxy  
-  nginx:
-    image: nginx:alpine
+      - traefik-net
+  traefik:
+    image: traefik:v2.10
     restart: unless-stopped
+    command:
+      - --providers.docker=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
-    depends_on:
-      - discord-bot
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
     networks:
-      - proxy
-  certbot:
-    image: certbot/certbot
-    restart: unless-stopped
-    volumes:
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    networks:
-      - proxy
+      - traefik-net
 networks:
   internal:
   proxy:
