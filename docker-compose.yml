@@ -8,6 +8,8 @@ services:
       - WEB_PORT=${WEB_PORT}
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
+      - HOST=${HOST}
+      - EMAIL=${EMAIL}
     volumes:
       - ./downloads:/app/downloads  # Для сохранения временных файлов
     labels:
