@@ -1,6 +1,18 @@
-http:
-  middlewares:
-    redirect-to-https:
-      redirectScheme:
-        scheme: https
-        permanent: true
+tls:
+  certificates:
+   -  certFile: /etc/traefik/*.${HOST}/cert.pem
+      keyFile: /etc/traefik/*.${HOST}/privkey.pem
+      stores:
+        - default
+   -  certFile: /etc/traefik/${HOST}/cert.pem
+      keyFile: /etc/traefik/${HOST}/privkey.pem
+
+accessLog:
+  filePath: "/var/log/access.log"
+  format: json
+  filters:
+    statusCodes:
+      - "200"
+      - "300-302"
+    retryAttempts: true
+    minDuration: "10ms"
