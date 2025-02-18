@@ -19,11 +19,15 @@ services:
       - traefik.http.routers.discord-bot.tls.certresolver=letsencrypt
       - traefik.http.services.discord-bot.loadbalancer.server.port=${WEB_PORT}
     networks:
-      - traefik_default
+      - traefik-net
 
   traefik:
     image: traefik:v2.10
     restart: unless-stopped
+    command:
+      - --providers.docker=true
+      - --providers.file.filename=/etc/traefik/traefik.yml
+      - --providers.docker.exposedbydefault=false
     volumes:
       - ./traefik.yml:/etc/traefik/traefik.yml
       - ./letsencrypt:/letsencrypt
@@ -32,8 +36,8 @@ services:
       - "80:80"
       - "443:443"
     networks:
-      - traefik_default
+      - traefik-net
 
 networks:
-  traefik_default:
+  traefik-net:
     driver: bridge
