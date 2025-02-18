@@ -22,10 +22,9 @@ services:
       - traefik.http.routers.discord-bot_https.entrypoints = websecure
       - traefik.http.routers.discord-bot_https.rule = Host(`${HOST}`)
       - traefik.http.routers.discord-bot_https.tls = true
-      - traefik.http.services.portainer.loadbalancer.server.port = 5000
-
+      - traefik.http.services.portainer.loadbalancer.server.port=${WEB_PORT}
     networks:
-      - traefik-net
+      - traefik_default
 
   traefik:
     image: traefik:v2.10
@@ -50,4 +49,4 @@ services:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - traefik-net
+      - traefik_default
