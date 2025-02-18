@@ -10,7 +10,7 @@ services:
       - HOST=${HOST}
     labels:
       - traefik.enable=true
-      - traefik.http.middlewares.discord-bot_https.redirectscheme.scheme = https
+      - traefik.http.middlewares.discord-bot_https.redirectScheme.scheme = https
       - traefik.http.routers.discord-bot.entrypoints = web
       - traefik.http.routers.discord-bot.middlewares = discord-bot_https@docker
       - traefik.http.routers.discord-bot.rule = Host(`${HOST}`)
