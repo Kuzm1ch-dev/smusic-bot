@@ -1,8 +1,7 @@
 services:
   discord-bot:
     image: ${IMAGE_REF}
-    container_name: discord-bot
-    restart: unless-stopped
+    restart: always
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - WEB_PORT=${WEB_PORT}
