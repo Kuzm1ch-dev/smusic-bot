@@ -48,6 +48,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy with docker-compose
+        uses: docker/compose-action@1.42.0
+        with:
+            compose-file: docker-compose.yml
         env:
             IMAGE_REF: ${{ steps.meta.outputs.tags }}
             BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -57,10 +60,6 @@ jobs:
             EMAIL: ${{ secrets.EMAIL }}
             HOST: ${{ secrets.HOST }}
         run: |
-            echo $IMAGE_REF
-            echo $WEB_PORT
-            echo $HOST
-            echo $EMAIL
             ssh -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd /opt/smusic-bot && \
