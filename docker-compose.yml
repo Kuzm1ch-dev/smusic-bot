@@ -1,6 +1,6 @@
 services:
   discord-bot:
-    build: .
+    image: ${IMAGE_REF}
     container_name: discord-music-bot
     restart: unless-stopped
     environment:
