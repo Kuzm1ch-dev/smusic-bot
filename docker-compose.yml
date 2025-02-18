@@ -13,12 +13,12 @@ services:
       - traefik-net
     ports:
       - ${WEB_PORT}:${WEB_PORT}
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.discord-bot.rule=Host(`${HOST}`)"
-    #   - "traefik.http.routers.discord-bot.entrypoints=websecure"
-    #   - "traefik.http.routers.discord-bot.tls.certresolver=myresolver"
-    #   - "traefik.http.services.discord-bot.loadbalancer.server.port=${WEB_PORT}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.discord-bot.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.discord-bot.entrypoints=websecure"
+      - "traefik.http.routers.discord-bot.tls.certresolver=myresolver"
+      - "traefik.http.services.discord-bot.loadbalancer.server.port=${WEB_PORT}"
 
   traefik:
     image: "traefik:v2.4"
