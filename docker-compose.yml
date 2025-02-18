@@ -13,7 +13,7 @@ services:
       # HTTP -> HTTPS redirect
       - traefik.http.routers.discord-bot-http.entrypoints=web
       - traefik.http.routers.discord-bot-http.rule=Host(`${HOST}`)
-      - traefik.http.routers.discord-bot-http.middlewares=redirect-to-https
+      - traefik.http.routers.discord-bot-http.middlewares=redirect-to-https@file
       # HTTPS router
       - traefik.http.routers.discord-bot.entrypoints=websecure
       - traefik.http.routers.discord-bot.rule=Host(`${HOST}`)
