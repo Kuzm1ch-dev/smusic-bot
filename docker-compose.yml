@@ -11,8 +11,6 @@ services:
       - HOST=${HOST}
     networks:
       - traefik-net
-    ports:
-      - ${WEB_PORT}:${WEB_PORT}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.discord-bot.rule=Host(`${HOST}`)"
