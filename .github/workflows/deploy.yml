@@ -23,34 +23,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Test Connection
-        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'Success!'"
-
-      - name: Copy files via rsync
+      - name: Install ssh keys
         run: |
-          rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/opt/smusic-bot
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+          docker context create remote --docker host=ssh://${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3.0.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Deploy with docker-compose
-        uses: docker/compose-action@1.42.0
-        with:
-            compose-file: docker-compose.yml
+
+      - name: Docker compose
         env:
             IMAGE_REF: ${{ steps.meta.outputs.tags }}
             BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -60,10 +53,7 @@ jobs:
             EMAIL: ${{ secrets.EMAIL }}
             HOST: ${{ secrets.HOST }}
         run: |
-            ssh -o StrictHostKeyChecking=no \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd /opt/smusic-bot && \
-            docker-compose down && \
-            docker-compose pull && \
-            docker-compose up -d && \
-            docker system prune -af"
+          docker-compose --context remote -f docker-compose.yml up -d
+
+      - name: cleanup
+        run: rm -rf ~/.ssh
