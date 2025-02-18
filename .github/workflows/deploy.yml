@@ -58,6 +58,9 @@ jobs:
             HOST: ${{ secrets.HOST }}
         run: |
             echo $IMAGE_REF
+            echo $WEB_PORT
+            echo $HOST
+            echo $EMAIL
             ssh -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd /opt/smusic-bot && \
