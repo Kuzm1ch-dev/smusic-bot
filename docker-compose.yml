@@ -8,18 +8,6 @@ services:
       - BOT_TOKEN=${BOT_TOKEN}
       - WEB_PORT=${WEB_PORT}
       - HOST=${HOST}
-    labels:
-      - traefik.enable=true
-      # HTTP -> HTTPS redirect
-      - traefik.http.routers.discord-bot-http.entrypoints=web
-      - traefik.http.routers.discord-bot-http.rule=Host(`${HOST}`)
-      - traefik.http.routers.discord-bot-http.middlewares=redirect-to-https@file
-      # HTTPS router
-      - traefik.http.routers.discord-bot.entrypoints=websecure
-      - traefik.http.routers.discord-bot.rule=Host(`${HOST}`)
-      - traefik.http.routers.discord-bot.tls=true
-      - traefik.http.routers.discord-bot.tls.certresolver=letsencrypt
-      - traefik.http.services.discord-bot.loadbalancer.server.port=${WEB_PORT}
     networks:
       - traefik-net
 
@@ -28,8 +16,22 @@ services:
     container_name: "traefik"
     command:
       - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=${EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
+      - "80:80"
+      - "443:443"
       - "8080:8080"
+    volumes:
+      - "letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - traefik-net
 
