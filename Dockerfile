@@ -1,5 +1,5 @@
-# Используем базовый образ Python
-FROM python:3.11-slim-buster
+# Этап сборки
+FROM python:3.11-slim-buster as builder
 
 # Устанавливаем системные зависимости для FFmpeg и PyNaCl
 RUN apt-get update && apt-get install -y \
@@ -9,7 +9,10 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Создаем рабочую директорию
+# Финальный образ
+FROM python:3.11-slim
+COPY --from=builder /root/.local /root/.local
+
 WORKDIR /app
 
 # Копируем зависимости
