@@ -19,7 +19,7 @@ certificatesResolvers:
       email: ${EMAIL}  # Замените на ${EMAIL}
       storage: /letsencrypt/acme.json
       httpChallenge:
-        entryPoint: discord-bot
+        entryPoint: web
 
 http:
   middlewares:
