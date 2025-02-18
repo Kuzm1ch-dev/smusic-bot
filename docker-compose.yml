@@ -3,6 +3,7 @@ version: '3'
 services:
   discord-bot:
     build: .
+    container_name: discord-bot
     restart: always
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
@@ -10,6 +11,11 @@ services:
       - HOST=${HOST}
     networks:
       - traefik-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.discord-bot.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.discord-bot.entrypoints=websecure"
+      - "traefik.http.routers.discord-bot.tls.certresolver=myresolver"
 
   traefik:
     image: "traefik:v2.4"
