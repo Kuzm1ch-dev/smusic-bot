@@ -1,3 +1,26 @@
+# traefik.yml
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: traefik_default
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: your@email.com  # Замените на ${EMAIL}
+      storage: /letsencrypt/acme.json
+      httpChallenge:
+        entryPoint: web
+
 http:
   middlewares:
     redirect-to-https:

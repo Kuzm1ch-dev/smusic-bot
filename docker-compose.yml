@@ -7,19 +7,14 @@ services:
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - WEB_PORT=${WEB_PORT}
-      - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
-      - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
       - HOST=${HOST}
-      - EMAIL=${EMAIL}
-    volumes:
-      - ./downloads:/app/downloads
     labels:
       - traefik.enable=true
-      - traefik.http.routers.discord-bot-http.entrypoints=web
       - traefik.http.routers.discord-bot-http.rule=Host(`${HOST}`)
-      - traefik.http.routers.discord-bot-http.middlewares=redirect-to-https
-      - traefik.http.routers.discord-bot.entrypoints=websecure
+      - traefik.http.routers.discord-bot-http.entrypoints=web
+      - traefik.http.routers.discord-bot-http.middlewares=redirect-to-https@file
       - traefik.http.routers.discord-bot.rule=Host(`${HOST}`)
+      - traefik.http.routers.discord-bot.entrypoints=websecure
       - traefik.http.routers.discord-bot.tls=true
       - traefik.http.routers.discord-bot.tls.certresolver=letsencrypt
       - traefik.http.services.discord-bot.loadbalancer.server.port=${WEB_PORT}
@@ -29,23 +24,13 @@ services:
   traefik:
     image: traefik:v2.10
     restart: unless-stopped
-    command:
-      - --api.insecure=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --providers.file.directory=/etc/traefik/dynamic_conf
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - ./traefik.yml:/etc/traefik/traefik.yml
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "80:80"
+      - "443:443"
     networks:
       - traefik_default
 
