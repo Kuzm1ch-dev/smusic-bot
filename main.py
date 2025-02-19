@@ -5,8 +5,8 @@ import yt_dlp as youtube_dl
 import os
 import asyncio
 
-async def run_bot():
-    await bot.start(os.getenv('BOT_TOKEN'))
+def run_bot():
+    bot.start(os.getenv('BOT_TOKEN'))
 
 
 class Song:
