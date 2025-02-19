@@ -5,8 +5,8 @@ import yt_dlp as youtube_dl
 import os
 import asyncio
 
-def run_bot():
-    bot.start(os.getenv('BOT_TOKEN'))
+async def run_bot():
+    await bot.start(os.getenv('BOT_TOKEN'))
 
 
 class Song:
@@ -167,4 +167,4 @@ async def leave(interaction: discord.Interaction):
         await interaction.response.send_message('❌ Бот не подключен к голосовому каналу')
 
 if __name__ == '__main__':
-    run_bot()
+    asyncio.run(run_bot())
