@@ -142,10 +142,8 @@ async def skip(interaction: discord.Interaction):
     queue = get_queue(guild_id)
     
     if queue.voice_client and queue.voice_client.is_playing():
-        queue.voice_client.stop()
-        queue.queue.pop(0)
-        if len(queue.queue) > 0:
-            await play_next(guild_id)
+        #queue.voice_client.stop()
+        await play_next(guild_id)
         await interaction.response.send_message('⏭️ Трек пропущен')
     else:
         await interaction.response.send_message('❌ Сейчас ничего не играет')
