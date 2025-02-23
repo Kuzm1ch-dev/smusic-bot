@@ -43,7 +43,7 @@ ydl_opts = {
 
 FFMPEG_OPTIONS = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-    'options': '-vn -sn -dn -f mp3'
+    'options': '-vn -sn -dn'
 }
 
 @bot.event
