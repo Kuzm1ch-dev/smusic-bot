@@ -152,7 +152,7 @@ async def clear(interaction: discord.Interaction):
     guild_id = interaction.guild.id
     queue = get_queue(guild_id)
     queue.clear()
-    await interaction.response.send_message('✅ Очередь очищена')<
+    await interaction.response.send_message('✅ Очередь очищена')
 
 @bot.tree.command(name='queue', description='Показать текущую очередь')
 async def show_queue(interaction: discord.Interaction):
