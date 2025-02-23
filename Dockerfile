@@ -17,9 +17,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Копируем исходный код
-COPY . .
-
 # Создаем папку для загрузок
 RUN mkdir -p downloads
 
