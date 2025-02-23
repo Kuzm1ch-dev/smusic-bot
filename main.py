@@ -20,6 +20,10 @@ class GuildQueue:
         self.now_playing = None
         self.voice_client = None
         self.loop = asyncio.new_event_loop()
+        
+    def clear(self):
+        self.queue.clear()
+        self.now_playing = None
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -55,7 +59,7 @@ async def on_ready():
     except Exception as e:
         print(f'Ошибка синхронизации: {e}')
 
-def get_queue(guild_id):
+def get_queue(guild_id) -> GuildQueue:
     if guild_id not in queues:
         queues[guild_id] = GuildQueue()
     return queues[guild_id]
@@ -142,6 +146,13 @@ async def skip(interaction: discord.Interaction):
         await interaction.response.send_message('⏭️ Трек пропущен')
     else:
         await interaction.response.send_message('❌ Сейчас ничего не играет')
+        
+@bot.tree.command(name='clear', description='Очистить очередь')
+async def clear(interaction: discord.Interaction):
+    guild_id = interaction.guild.id
+    queue = get_queue(guild_id)
+    queue.clear()
+    await interaction.response.send_message('✅ Очередь очищена')<
 
 @bot.tree.command(name='queue', description='Показать текущую очередь')
 async def show_queue(interaction: discord.Interaction):
