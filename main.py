@@ -26,6 +26,12 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 queues = {}  # key: guild_id, value: GuildQueue
 ydl_opts = {
     'format': 'bestaudio/best',
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+    'nocheckcertificate': True,
     'outtmpl': 'downloads/%(id)s.%(ext)s',
     'noplaylist': False,  # Разрешаем плейлисты
     'quiet': True,
@@ -35,6 +41,10 @@ ydl_opts = {
     }
 }
 
+FFMPEG_OPTIONS = {
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+    'options': '-vn -sn -dn -f bestaudio'
+}
 
 @bot.event
 async def on_ready():
@@ -60,7 +70,7 @@ async def play_next(guild_id):
     
     try:
         queue.voice_client.play(
-            discord.FFmpegPCMAudio(queue.now_playing.url, executable='ffmpeg'),
+            discord.FFmpegPCMAudio(queue.now_playing.url, executable='ffmpeg', **FFMPEG_OPTIONS),
             after=lambda e: asyncio.run_coroutine_threadsafe(play_next(guild_id), queue.loop)
         )
     except Exception as e:
@@ -68,7 +78,7 @@ async def play_next(guild_id):
         await play_next(guild_id)
 
 @bot.tree.command(name='play', description='Добавить трек или плейлист')
-async def play(interaction: discord.Interaction, запрос: str):
+async def play(interaction: discord.Interaction, request: str):
     await interaction.response.defer()
     
     if not interaction.user.voice:
@@ -88,7 +98,7 @@ async def play(interaction: discord.Interaction, запрос: str):
 
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(запрос, download=False)
+            info = ydl.extract_info(request, download=False)
             
             added_tracks = 0
             if 'entries' in info:
