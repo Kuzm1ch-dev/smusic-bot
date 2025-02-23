@@ -20,7 +20,7 @@ services:
       - "traefik.http.routers.discord-bot.tls.certresolver=letsencrypt"
       - "traefik.http.services.discord-bot.loadbalancer.server.port=${WEB_PORT}"
     volumes:
-      -./:/app
+      - "./:/app"
 
   traefik:
     image: "traefik:v2.4"
