@@ -72,9 +72,7 @@ async def play_next(guild_id):
         return
 
     queue.now_playing = queue.queue.pop(0)
-    
     try:
-        queue.voice_client.stop()
         queue.voice_client.play(
             discord.FFmpegPCMAudio(queue.now_playing.url, executable='ffmpeg', **FFMPEG_OPTIONS),
             after=lambda e: asyncio.run_coroutine_threadsafe(play_next(guild_id), queue.loop)
