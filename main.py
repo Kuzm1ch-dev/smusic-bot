@@ -4,6 +4,7 @@ from discord.ext import commands
 import yt_dlp as youtube_dl
 import os
 import asyncio
+import sys
 
 async def run_bot():
     await bot.start(os.getenv('BOT_TOKEN'))
@@ -154,6 +155,17 @@ async def clear(interaction: discord.Interaction):
     queue = get_queue(guild_id)
     queue.clear()
     await interaction.response.send_message('✅ Очередь очищена')
+    
+@bot.tree.command(name='restart', description='Перезагрузка')
+async def restart(interaction: discord.Interaction):
+    guild_id = interaction.guild.id
+    queue = get_queue(guild_id)
+    queue.clear()
+    queue.now_playing = None
+    if queue.voice_client:
+        await queue.voice_client.disconnect()
+        queue.voice_client = None
+    await interaction.response.send_message('🔄 Перезагрузка...')
 
 @bot.tree.command(name='queue', description='Показать текущую очередь')
 async def show_queue(interaction: discord.Interaction):
