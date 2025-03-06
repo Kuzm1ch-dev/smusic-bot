@@ -203,3 +203,4 @@ if __name__ == '__main__':
     bot.register_commands()
     async def run_bot():
         await bot.run()
+    asyncio.run(run_bot())
