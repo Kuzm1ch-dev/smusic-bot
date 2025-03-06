@@ -1,12 +1,9 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import uvicorn
 import yt_dlp as youtube_dl
 import os
 import asyncio
-from dotenv import load_dotenv
-import sys
 
 ydl_opts = {
     'format': 'bestaudio/best',
