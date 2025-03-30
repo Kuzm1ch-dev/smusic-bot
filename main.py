@@ -74,7 +74,11 @@ class SmusicBot:
         @self.bot.tree.command(name="skip", description="Всё нахуй")
         async def skip(interaction: discord.Interaction):
             await self.skip(interaction)
-            
+        
+        @self.bot.tree.command(name="stop", description="Стапс")
+        async def stop(interaction: discord.Interaction):
+            await self.stop(interaction)
+        
         @self.bot.event
         async def on_ready():
             await self.on_ready()
@@ -194,7 +198,18 @@ class SmusicBot:
 
         if not queue.voice_client.is_playing():
             await self.play_next(guild_id)
-        
+
+    async def stop(self, interaction: discord.Interaction):
+        guild_id = interaction.guild.id
+        queue = await self.get_queue(guild_id)
+
+        if queue.voice_client:
+            queue.voice_client.stop()
+            queue.clear()
+            await queue.voice_client.disconnect()
+            queue.voice_client = None
+            await interaction.response.send_message('🛑 Остановлено')<e
+    
     async def run(self):
         await self.bot.start(self.token)
         
